@@ -21,7 +21,7 @@ func main() {
 			args = append(args,(fmt.Sprintf("%s", in.Get("relay"))))
 		}
 		fmt.Println(args)
-		cmd := exec.Command("./relay_control.py", args...)
+		cmd := exec.Command("/opt/relay_control/relay_control.py", args...)
 		out, err := cmd.Output()
 
 		if err != nil {
@@ -44,7 +44,7 @@ func main() {
 			args = append(args, fmt.Sprintf("%s", in.Get("relay")))
 		}
 		fmt.Println(args)
-		cmd := exec.Command("./relay_control.py", args...)
+		cmd := exec.Command("/opt/relay_control/relay_control.py", args...)
 		out, err := cmd.Output()
 
 		if err != nil {
