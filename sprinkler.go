@@ -1,4 +1,4 @@
-package main
+package home_automation_server
 
 import (
 	"fmt"
@@ -7,28 +7,21 @@ import (
 	"os/exec"
 )
 
-func main() {
-	// See RunServer below
-	stopServerChan := make(chan struct{})
+func SprinklerController() {
 
-	fmt.Printf("Starting REST server\n")
 
 	rest.HandleGET("/get", func(in url.Values)  string {
 		args := []string{"get"}
-		fmt.Println(in)
 		if in.Get("relay") != "" {
-                        args = append(args,"--relay")
+			args = append(args,"--relay")
 			args = append(args,(fmt.Sprintf("%s", in.Get("relay"))))
 		}
-		fmt.Println(args)
 		cmd := exec.Command("/opt/relay_control/relay_control.py", args...)
-		out, err := cmd.Output()
-
+		out,err := cmd.Output()
 		if err != nil {
 			println(err.Error())
 			return ""
 		}
-
 		return fmt.Sprintf(string(out))
 	})
 
@@ -54,11 +47,4 @@ func main() {
 
 		return fmt.Sprintf(string(out))
 	})
-
-	rest.HandleGET("/close", func() string {
-		stopServerChan <- struct{}{}
-		return "Stopping REST server..."
-	})
-
-	rest.RunServer("0.0.0.0:8080", stopServerChan)
 }

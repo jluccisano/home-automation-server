@@ -1,36 +1,15 @@
-package main
+package home_automation_server
 
 import (
-	"github.com/jluccisano/syno-cli/synoapi"
 	"log"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"net/url"
 	"github.com/ungerik/go-rest"
+	"github.com/jluccisano/syno-cli/synoapi"
 )
 
-type conf struct {
-	Url string `yaml:"url"`
-	User string `yaml:"user"`
-	Passwd string `yaml:"passwd"`
-}
-
-func (c *conf) getConf() *conf {
-
-	yamlFile, err := ioutil.ReadFile("conf.yaml")
-	if err != nil {
-		log.Printf("yamlFile.Get err   #%v ", err)
-	}
-	err = yaml.Unmarshal(yamlFile, c)
-	if err != nil {
-		log.Fatalf("Unmarshal: %v", err)
-	}
-
-	return c
-}
-
-
-func main() {
+func AlarmController(c conf) {
 
 	var c conf
 	c.getConf()
