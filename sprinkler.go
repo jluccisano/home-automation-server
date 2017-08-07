@@ -1,4 +1,4 @@
-package home_automation_server
+package main
 
 import (
 	"fmt"
@@ -7,10 +7,9 @@ import (
 	"os/exec"
 )
 
-func SprinklerController() {
+func registerSprinklerControl() {
 
-
-	rest.HandleGET("/get", func(in url.Values)  string {
+	rest.HandleGET("/zones", func(in url.Values)  string {
 		args := []string{"get"}
 		if in.Get("relay") != "" {
 			args = append(args,"--relay")
@@ -25,7 +24,7 @@ func SprinklerController() {
 		return fmt.Sprintf(string(out))
 	})
 
-	rest.HandlePOST("/set", func(in url.Values)  string {
+	rest.HandlePOST("/setZone", func(in url.Values)  string {
 		if in.Get("state") == "" {
 			println("State param is mandatory.")
 			return ""

@@ -1,17 +1,14 @@
-package home_automation_server
+package main
 
 import (
 	"log"
-	"gopkg.in/yaml.v2"
-	"io/ioutil"
 	"net/url"
 	"github.com/ungerik/go-rest"
 	"github.com/jluccisano/syno-cli/synoapi"
 )
 
-func AlarmController(c conf) {
+func registerAlarmControl(c conf) {
 
-	var c conf
 	c.getConf()
 
 	client := synoapi.NewClient(c.Url)

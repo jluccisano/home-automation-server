@@ -1,14 +1,11 @@
-package home_automation_server
+package main
 
 import (
 	"log"
 	"github.com/ungerik/go-rest"
-	"net/url"
 	"io/ioutil"
 	"gopkg.in/yaml.v2"
 	"fmt"
-	"home_automation_server/alarm"
-	"home_automation_server/sprinkler"
 )
 
 type conf struct {
@@ -18,7 +15,6 @@ type conf struct {
 }
 
 func (c *conf) getConf() *conf {
-
 	yamlFile, err := ioutil.ReadFile("conf.yaml")
 	if err != nil {
 		log.Printf("yamlFile.Get err   #%v ", err)
@@ -27,19 +23,16 @@ func (c *conf) getConf() *conf {
 	if err != nil {
 		log.Fatalf("Unmarshal: %v", err)
 	}
-
 	return c
 }
 
 func main() {
-
 	var c conf
 	c.getConf()
 
-	alarm := AlarmController(c)
-	sprinkler := SprinklerController()
+	registerAlarmControl(c)
+	registerSprinklerControl()
 
-	// See RunServer below
 	stopServerChan := make(chan struct{})
 
 	fmt.Printf("Starting REST server\n")
@@ -50,5 +43,4 @@ func main() {
 	})
 
 	rest.RunServer("0.0.0.0:8080", stopServerChan)
-
 }
