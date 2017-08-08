@@ -2,10 +2,12 @@ package main
 
 import (
 	"log"
-	"github.com/ungerik/go-rest"
 	"io/ioutil"
 	"gopkg.in/yaml.v2"
-	"fmt"
+	"github.com/gorilla/mux"
+	"net/http"
+	"github.com/gorilla/handlers"
+	"os"
 )
 
 type conf struct {
@@ -30,17 +32,14 @@ func main() {
 	var c conf
 	c.getConf()
 
-	registerAlarmControl(c)
-	registerSprinklerControl()
+	r := mux.NewRouter()
 
-	stopServerChan := make(chan struct{})
+	r.Handle("/", http.FileServer(http.Dir("./views/")))
+	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))))
 
-	fmt.Printf("Starting REST server\n")
+	registerAlarmControl(r, c)
+	registerSprinklerControl(r)
 
-	rest.HandleGET("/close", func() string {
-		stopServerChan <- struct{}{}
-		return "Stopping REST server..."
-	})
+	http.ListenAndServe(":8514", handlers.LoggingHandler(os.Stdout, r))
 
-	rest.RunServer("0.0.0.0:8080", stopServerChan)
 }

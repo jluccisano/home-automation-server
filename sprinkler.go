@@ -2,48 +2,69 @@ package main
 
 import (
 	"fmt"
-	"github.com/ungerik/go-rest"
-	"net/url"
 	"os/exec"
+	"net/http"
+	"github.com/gorilla/mux"
 )
 
-func registerSprinklerControl() {
+func registerSprinklerControl(router *mux.Router) {
 
-	rest.HandleGET("/zones", func(in url.Values)  string {
+	var ZonesHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		args := []string{"get"}
-		if in.Get("relay") != "" {
+		cmd := exec.Command("/opt/relay_control/relay_control.py", args...)
+		out,err := cmd.Output()
+		if err != nil {
+			println(err.Error())
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(out))
+	})
+
+	var ZoneHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		args := []string{"get"}
+		vars := mux.Vars(r)
+		id := vars["id"]
+		if id != "" {
 			args = append(args,"--relay")
-			args = append(args,(fmt.Sprintf("%s", in.Get("relay"))))
+			args = append(args,(fmt.Sprintf("%s", id)))
 		}
 		cmd := exec.Command("/opt/relay_control/relay_control.py", args...)
 		out,err := cmd.Output()
 		if err != nil {
 			println(err.Error())
-			return ""
 		}
-		return fmt.Sprintf(string(out))
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(out))
 	})
 
-	rest.HandlePOST("/setZone", func(in url.Values)  string {
-		if in.Get("state") == "" {
+	var SetZoneHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		id := vars["id"]
+		vals := r.URL.Query()
+		state, ok := vals["state"]
+		if ok {
 			println("State param is mandatory.")
-			return ""
 		}
-		fmt.Println(in)
-		args := []string{"set","--state", fmt.Sprintf("%s", in.Get("state"))}
-		if in.Get("relay") != "" {
+
+		args := []string{"set","--state", fmt.Sprintf("%s", state)}
+		if !ok {
 			args = append(args,"--relay")
-			args = append(args, fmt.Sprintf("%s", in.Get("relay")))
+			args = append(args, fmt.Sprintf("%s", id))
 		}
-		fmt.Println(args)
 		cmd := exec.Command("/opt/relay_control/relay_control.py", args...)
-		out, err := cmd.Output()
+		_, err := cmd.Output()
 
 		if err != nil {
 			println(err.Error())
-			return ""
 		}
 
-		return fmt.Sprintf(string(out))
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte("OK"))
 	})
+
+	router.Handle("/sprinkler/zones", ZonesHandler).Methods("GET")
+	router.Handle("/sprinkler/zones/{id}", authMiddleware(ZoneHandler)).Methods("GET")
+	router.Handle("/sprinkler/zones/{id}", SetZoneHandler).Methods("POST")
 }

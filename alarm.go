@@ -2,14 +2,12 @@ package main
 
 import (
 	"log"
-	"net/url"
-	"github.com/jluccisano/go-rest"
 	"github.com/jluccisano/syno-cli/synoapi"
+	"net/http"
+	"github.com/gorilla/mux"
 )
 
-func registerAlarmControl(c conf) {
-
-	c.getConf()
+func registerAlarmControl(r *mux.Router, c conf) {
 
 	client := synoapi.NewClient(c.Url)
 	err2 := client.Login(c.User, c.Passwd)
@@ -17,22 +15,24 @@ func registerAlarmControl(c conf) {
 		log.Fatal(err2)
 	}
 
-
-	rest.HandleGET("/enable", func(in url.Values)  string {
+	var EnableHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err := client.Enable()
 		if err != nil {
 			log.Fatalf("Enable failed: %v", err)
-			return err.Error();
 		}
-		return "OK";
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte("OK"))
 	})
 
-	rest.HandleGET("/disable", func(in url.Values)  string {
+	var DisableHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err := client.Disable()
 		if err != nil {
-			log.Fatalf("Disable failed: %v", err)
-			return err.Error();
+			log.Fatalf("Enable failed: %v", err)
 		}
-		return "OK";
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte("OK"))
 	})
+
+	r.Handle("/alarm/enable", EnableHandler).Methods("GET")
+	r.Handle("/alarm/disable", DisableHandler).Methods("GET")
 }
