@@ -37,6 +37,7 @@ func main() {
 	r.Handle("/", http.FileServer(http.Dir("./views/")))
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))))
 
+	registerAuth(r)
 	registerAlarmControl(r, c)
 	registerSprinklerControl(r)
 
