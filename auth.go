@@ -12,7 +12,7 @@ import (
 )
 
 func registerAuth(r *mux.Router) {
-	r.Handle("/login", GetTokenHandler).Methods("GET")
+	r.Handle("/authenticate", GetTokenHandler).Methods("POST")
 }
 
 /* Set up a global string for our secret */
@@ -45,9 +45,10 @@ var GetTokenHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Reque
 		token := jwt.New(jwt.SigningMethodHS256)
 
 		/* Set token claims */
-		token.Claims["admin"] = true
-		token.Claims["name"] = "Ado Kukic"
-		token.Claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
+		claims := make(jwt.MapClaims)
+		claims["admin"] = true
+		claims["name"] = "Ado Kukic"
+		claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
 
 		/* Sign the token with our secret */
 		tokenString, err := token.SignedString(SecretKey)
@@ -61,11 +62,7 @@ var GetTokenHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Reque
 			w.Write([]byte("Unauthorized"))
 		} else {
 
-			data := map[string]string{
-				"token": tokenString,
-			}
-
-			w.Write([]byte(data))
+			w.Write([]byte(tokenString))
 		}
 	}  else {
 		fmt.Println(err)
@@ -83,9 +80,11 @@ func authMiddleware(next http.Handler) http.Handler {
 		splitToken := strings.Split(reqToken, "Bearer")
 		reqToken = splitToken[1]
 
-		token, err := jwt.Parse(reqToken, func(token *jwt.Token) ([]byte, error) {
+		token, err := jwt.Parse(reqToken, func(token *jwt.Token) (interface{}, error) {
+			// Don't forget to validate the alg is what you expect:
 			return []byte(SecretKey), nil
 		})
+
 		if err == nil && token.Valid {
 			next.ServeHTTP(w, r)
 		} else {
