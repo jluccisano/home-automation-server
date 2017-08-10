@@ -1,6 +1,5 @@
 package main
 
-
 import (
 	"fmt"
 	"net/http"
@@ -9,22 +8,59 @@ import (
 	"github.com/gorilla/mux"
 	"encoding/json"
 	"strings"
+	"io/ioutil"
+	"crypto/rsa"
 )
 
-func registerAuth(r *mux.Router) {
+var (
+	verifyKey  *rsa.PublicKey
+	signKey    *rsa.PrivateKey
+)
+
+func loadKeys(subConfig *SubConfig) {
+
+	signBytes, err := ioutil.ReadFile(subConfig.PrivateKey)
+	fatal(err)
+
+	signKey, err = jwt.ParseRSAPrivateKeyFromPEM(signBytes)
+	fatal(err)
+
+	verifyBytes, err := ioutil.ReadFile(subConfig.PublicKey)
+	fatal(err)
+
+	verifyKey, err = jwt.ParseRSAPublicKeyFromPEM(verifyBytes)
+	fatal(err)
+}
+
+func registerAuth(r *mux.Router, subConfig *SubConfig) {
+	loadKeys(subConfig)
+
 	r.Handle("/authenticate", GetTokenHandler).Methods("POST")
 }
 
 /* Set up a global string for our secret */
 const (
-	ValidUser = "John"
-	ValidPass = "Doe"
-	SecretKey = "WOW,MuchShibe,ToDogge"
+	ValidUser = "foo"
+	ValidPass = "bar"
 )
 
 type User struct{
 	Id      string
 	Password string
+}
+
+func createToken (user User) (string, error) {
+	/* Create the token */
+	token := jwt.New(jwt.GetSigningMethod("RS256"))
+
+	/* Set token claims */
+	claims := make(jwt.MapClaims)
+	claims["admin"] = true
+	claims["username"] = user.Id
+	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
+
+	/* Sign the token with our secret */
+	return token.SignedString(signKey)
 }
 
 /* Handlers */
@@ -41,23 +77,11 @@ var GetTokenHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Reque
 	}
 
 	if user.Id == ValidUser && user.Password == ValidPass {
-		/* Create the token */
-		token := jwt.New(jwt.SigningMethodHS256)
 
-		/* Set token claims */
-		claims := make(jwt.MapClaims)
-		claims["admin"] = true
-		claims["name"] = "Ado Kukic"
-		claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
-
-		/* Sign the token with our secret */
-		tokenString, err := token.SignedString(SecretKey)
-
+		tokenString, err := createToken(user)
 		/* Finally, write the token to the browser window */
-
 		if err != nil {
-			fmt.Println(err)
-			fmt.Println("User or Password is not valid:", token)
+			fmt.Println("User or Password is not valid:", tokenString)
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte("Unauthorized"))
 		} else {
@@ -82,7 +106,7 @@ func authMiddleware(next http.Handler) http.Handler {
 
 		token, err := jwt.Parse(reqToken, func(token *jwt.Token) (interface{}, error) {
 			// Don't forget to validate the alg is what you expect:
-			return []byte(SecretKey), nil
+			return verifyKey, nil
 		})
 
 		if err == nil && token.Valid {

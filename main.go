@@ -1,46 +1,38 @@
 package main
 
 import (
-	"log"
-	"io/ioutil"
-	"gopkg.in/yaml.v2"
 	"github.com/gorilla/mux"
 	"net/http"
 	"github.com/gorilla/handlers"
 	"os"
+	"log"
 )
 
-type conf struct {
-	Url string `yaml:"url"`
-	User string `yaml:"user"`
-	Passwd string `yaml:"passwd"`
-}
-
-func (c *conf) getConf() *conf {
-	yamlFile, err := ioutil.ReadFile("conf.yaml")
-	if err != nil {
-		log.Printf("yamlFile.Get err   #%v ", err)
-	}
-	err = yaml.Unmarshal(yamlFile, c)
-	if err != nil {
-		log.Fatalf("Unmarshal: %v", err)
-	}
-	return c
-}
-
 func main() {
-	var c conf
-	c.getConf()
+	var config Config
+	subConfig := config.GetConf("Prod")
 
 	r := mux.NewRouter()
 
 	r.Handle("/", http.FileServer(http.Dir("./views/")))
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))))
 
-	registerAuth(r)
-	registerAlarmControl(r, c)
+	r.Handle("/home", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Hello World!"))
+	})).Methods("GET")
+
+	registerAuth(r, subConfig)
+	//registerAlarmControl(r, subConfig)
 	registerSprinklerControl(r)
 
-	http.ListenAndServe(":8514", handlers.LoggingHandler(os.Stdout, r))
+	log.Println("Start Listening on 8514 over SSL...")
+
+	go fatal(http.ListenAndServeTLS(":8514", "testResources/cert.pem", "testResources/key.pem", handlers.LoggingHandler(os.Stdout, r)))
+
+	log.Println("Start Listening on 8515...")
+
+	fatal(http.ListenAndServe(":8515", handlers.LoggingHandler(os.Stdout, r)))
+	//http://www.kaihag.com/https-and-go/
 
 }
