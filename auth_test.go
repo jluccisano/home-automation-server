@@ -5,55 +5,68 @@ import (
 	"net/http"
 	"log"
 	"fmt"
-	"net/url"
 	"bytes"
 	"io/ioutil"
+	"github.com/stretchr/testify/assert"
+)
+var (
+	serverPort int
+	fakeUser = map[string]string{
+		"foo": "bar",
+	}
 )
 
-func TestMain(m *testing.M) {
-	http.ListenAndServe(":8515", nil)
+func init() {
+	var config Config
+	subConfig := config.GetConf("Test")
+	loadKeys(subConfig)
+	http.HandleFunc("/authenticate", GetTokenHandler)
+	http.HandleFunc("/fakeUrl", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("OK"))
+	})
+
 	log.Println("Listening...")
+	go func() {
+		fatal(http.ListenAndServe(":8515", nil))
+	}()
 }
 
 func TestUnauthorizedIfNoToken(t *testing.T) {
-	req, err := http.NewRequest("GET","http://localhost:8515/sprinkler/zones", nil)
+	assert := assert.New(t)
+	req, err := http.NewRequest("GET","http://localhost:8515/fakeUrl", nil)
 	fatal(err)
 	res, err := http.DefaultClient.Do(req)
 	fatal(err)
-	fmt.Println("response Status:", res.Status)
-	fmt.Println("response Headers:", res.Header)
-	body, _ := ioutil.ReadAll(res.Body)
-	fmt.Println("response Body:", string(body))
+	assert.Equal(res.StatusCode, http.StatusOK, "status should be equal")
 }
 
 func TestAuthenticate(t *testing.T) {
-	var jsonStr = []byte(`{"user":"foo","password":"bar"}`)
+	assert := assert.New(t)
+	token, err := createToken(User{Id:"foo",Password:"bar"})
+
+	var jsonStr = []byte(`{"id":"foo","password":"bar"}`)
 	req, err := http.NewRequest("POST", fmt.Sprintf("http://localhost:%v/authenticate", "8515"), bytes.NewBuffer(jsonStr))
 	req.Header.Set("Content-Type", "application/json")
 	fatal(err)
 	res, err := http.DefaultClient.Do(req)
 	fatal(err)
-	fmt.Println("response Status:", res.Status)
-	fmt.Println("response Headers:", res.Header)
+	assert.Equal(res.StatusCode, http.StatusOK, "status should be equal")
 	body, _ := ioutil.ReadAll(res.Body)
-	fmt.Println("response Body:", string(body))
+	assert.Equal(string(body), token, "token should be equal")
+
 }
 
 func TestAuthorizedIfToken(t *testing.T) {
-	req, err := http.NewRequest("GET","http://localhost:8515/sprinkler/zones", nil)
+	assert := assert.New(t)
+	token, err := createToken(User{Id:"foo",Password:"bar"})
+	req, err := http.NewRequest("GET","http://localhost:8515/fakeUrl", nil)
 	fatal(err)
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", token))
 	res, err := http.DefaultClient.Do(req)
 	fatal(err)
-	fmt.Println("response Status:", res.Status)
-	fmt.Println("response Headers:", res.Header)
+	assert.Equal(res.StatusCode, http.StatusOK, "status should be equal")
 	body, _ := ioutil.ReadAll(res.Body)
-	fmt.Println("response Body:", string(body))
-}
+	assert.Equal(string(body), "OK", "status should be equal")
 
-
-func fatal(err error) {
-	if err != nil {
-		log.Fatal(err)
-	}
 }
