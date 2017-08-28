@@ -11,8 +11,8 @@ type SubConfig struct {
 	Url string `yaml:"url"`
 	User string `yaml:"user"`
 	Passwd string `yaml:"passwd"`
-	PrivateKey string `yaml:"privateKey"`
 	PublicKey string `yaml:"publicKey"`
+	PrivateKey string `yaml:"privateKey"`
 }
 
 type Config struct {
