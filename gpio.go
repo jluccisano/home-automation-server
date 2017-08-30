@@ -4,7 +4,7 @@ import (
 	"gobot.io/x/gobot/platforms/raspi"
 )
 
-func getGpio(pinNumber string) (value byte) {
+func getGpio(pinNumber string) (value int) {
 	value, err := raspi.NewAdaptor().DigitalRead(pinNumber)
 	fatal(err)
 	return value
