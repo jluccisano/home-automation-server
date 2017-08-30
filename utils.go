@@ -16,7 +16,7 @@ type SubConfig struct {
 }
 
 type Config struct {
-	Dev *SubConfig
+	Prod *SubConfig
 	Test *SubConfig
 }
 
