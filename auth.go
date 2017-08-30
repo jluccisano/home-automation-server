@@ -94,6 +94,7 @@ var GetTokenHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Reque
 		w.WriteHeader(http.StatusUnauthorized)
 		w.Write([]byte("Unauthorized"))
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 })
 
 
