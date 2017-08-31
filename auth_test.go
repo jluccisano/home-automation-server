@@ -18,7 +18,7 @@ var (
 
 func init() {
 	var config Config
-	subConfig := config.GetConf("Test")
+	subConfig := config.GetConf("test")
 	loadKeys(subConfig)
 	http.HandleFunc("/authenticate", GetTokenHandler)
 	http.HandleFunc("/fakeUrl", func(w http.ResponseWriter, r *http.Request) {

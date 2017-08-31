@@ -7,7 +7,7 @@ import (
 	"reflect"
 )
 
-type SubConfig struct {
+type Config struct {
 	Url string `yaml:"url"`
 	User string `yaml:"user"`
 	Passwd string `yaml:"passwd"`
@@ -15,13 +15,8 @@ type SubConfig struct {
 	PublicKey string `yaml:"publicKey"`
 }
 
-type Config struct {
-	Prod *SubConfig
-	Test *SubConfig
-}
-
-func (c *Config) GetConf(env string) *SubConfig {
-	yamlFile, err := ioutil.ReadFile("conf.yaml")
+func (c *Config) GetConf(env string) *Config {
+	yamlFile, err := ioutil.ReadFile("conf-"+ env + ".yaml")
 	if err != nil {
 		log.Printf("yamlFile.Get err   #%v ", err)
 	}
@@ -29,7 +24,7 @@ func (c *Config) GetConf(env string) *SubConfig {
 	if err != nil {
 		log.Fatalf("Unmarshal: %v", err)
 	}
-	return reflect.ValueOf(c).Elem().FieldByName(env).Interface().(*SubConfig)
+	return c
 }
 
 func fatal(err error) {
