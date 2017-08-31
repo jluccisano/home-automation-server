@@ -4,7 +4,6 @@ import (
 	"io/ioutil"
 	"log"
 	"gopkg.in/yaml.v2"
-	"reflect"
 )
 
 type Config struct {
