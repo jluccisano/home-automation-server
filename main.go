@@ -13,12 +13,6 @@ func main() {
 
 	r := mux.NewRouter()
 
-	// On the default page we will simply serve our static index page.
-	r.Handle("/", http.FileServer(http.Dir("./public/")))
-	// We will setup our server so we can serve static assest like images, css from the /static/{file} route
-	r.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("./public/"))))
-
-
 	registerAuth(r, subConfig)
 	registerAlarmControl(r, subConfig)
 	registerSprinklerControl(r)
