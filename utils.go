@@ -15,7 +15,7 @@ type Config struct {
 }
 
 func (c *Config) GetConf(env string) *Config {
-	yamlFile, err := ioutil.ReadFile("conf-"+ env + ".yaml")
+	yamlFile, err := ioutil.ReadFile("conf/conf-"+ env + ".yaml")
 	if err != nil {
 		log.Printf("yamlFile.Get err   #%v ", err)
 	}
