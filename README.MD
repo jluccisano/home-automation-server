@@ -5,7 +5,7 @@ go build .
 ```
 
 sudo docker build -t home-server .
-sudo docker run -it --name home-server \
+sudo docker run -dit --name home-server \
     -p 8514:8514 \
     -v $PWD/conf/conf-prod.yaml:/go/src/app/conf/conf-prod.yaml \
     home-server
