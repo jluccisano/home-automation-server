@@ -17,7 +17,7 @@ var (
 	signKey    *rsa.PrivateKey
 )
 
-func loadKeys(subConfig *SubConfig) {
+func loadKeys(subConfig *Config) {
 
 	signBytes, err := ioutil.ReadFile(subConfig.PrivateKey)
 	fatal(err)
@@ -32,7 +32,7 @@ func loadKeys(subConfig *SubConfig) {
 	fatal(err)
 }
 
-func registerAuth(r *mux.Router, subConfig *SubConfig) {
+func registerAuth(r *mux.Router, subConfig *Config) {
 	loadKeys(subConfig)
 
 	r.Handle("/authenticate", addDefaultHeaders(GetTokenHandler)).Methods("POST")

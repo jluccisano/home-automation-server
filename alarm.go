@@ -7,7 +7,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func registerAlarmControl(r *mux.Router, c *SubConfig) {
+func registerAlarmControl(r *mux.Router, c *Config) {
 
 	client := synoapi.NewClient(c.Url)
 	err2 := client.Login(c.User, c.Passwd)
