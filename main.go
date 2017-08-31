@@ -9,7 +9,7 @@ import (
 
 func main() {
 	var config Config
-	subConfig := config.GetConf("Prod")
+	subConfig := config.GetConf("prod")
 
 	r := mux.NewRouter()
 
