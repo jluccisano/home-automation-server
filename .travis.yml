@@ -1,1 +1,10 @@
 language: go
+branches:
+  only:
+    - master
+go:
+  - 1.8
+install:
+  - go get -d -v ./...
+script:
+  - go test -v ./...
