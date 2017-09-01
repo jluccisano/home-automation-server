@@ -7,8 +7,6 @@ branches:
   - master
 go:
 - 1.8
-install:
-- go get -d -v ./...
 script:
 # prepare qemu https://blog.hypriot.com/post/setup-simple-ci-pipeline-for-arm-images/
 - docker run --rm --privileged multiarch/qemu-user-static:register --reset
