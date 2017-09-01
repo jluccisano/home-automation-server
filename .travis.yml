@@ -25,6 +25,3 @@ env:
   - secure: FN0b4pmZKinBHn8R/24nzsMJz63QiWDZ4g2fOBwW+10v/khKJFkmgEYVgm/AW6Zy00i6KRhqZ9BWyhLFbzb6296TxaBrZ895Mmf/NBO7oJsjEJeATVFJD7bMRttt3bo37+a/Api6su32LjtXdiWuhdhpyYAtpYblmsKyBIHkexjrgggyzpHZJC3uMw3MZrhKyirYTsOvHc/QU+Q6raTWFIXrssv+owfWG4mYICrqetYotp++Wc/ObEpyQL3fWfllrqVN3zqATUPJVuj3eIC1871I9Ul1FoswV5qVvpCwBxOOyu+lmQNrTAy6lFHuU8LI1i91CCbijJYZxhBWL61CaqSzxxxsY2fg9WNvFgzxhrP+lcoU39h1qcyxC1auKf3zm4rWppsxADl+BFyHxhu2PmiEgFU4rFr34qp6Kcw/+qtVw2AANJwVvPMgyu40Bwqs6FhSgCqwBu5CSv4k1sFWaTzpomk9nXU9ubbGzmOBkq50mMaTyxG99imv6AVAHJfBEIGW7Hn1u97XNwe3ortj4a9Im/mln0ukCW3tlrj2OWHc7JITWgEK1iIh7pLJ4U0Kjk7yLNoYJ4ilsbx9qjF0eXt4d34ZNY/DAYhJ+GKNPDGfrXqhv/mZM/H1UBmkkXBHAOURo+Lh2B3JH6Xq+A4wQjTiXaKr1le8VQ6Qjvfr7pA=
   - COMMIT=${TRAVIS_COMMIT::8}
   - REPO=$DOCKER_USER/home-automation-server
-  - CGO_ENABLED=0
-  - GOOS=linux
-  - GOARCH=arm #target raspberry
