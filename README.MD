@@ -8,11 +8,11 @@ go build .
 ./home-automation-server
 ```
 
-sudo docker build -t home-server .
-sudo docker run -dit --name home-server \
+sudo docker build -t home-automation-server .
+sudo docker run -dit --name home-automation-server \
     -p 8514:8514 \
     -v $PWD/conf/conf-prod.yaml:/go/src/app/conf/conf-prod.yaml \
-    home-server
+    home-automation-server
 sudo docker exec -i -t e6bd4cc550cf /bin/bash
 
 
@@ -24,4 +24,4 @@ armv7l
 
 
 [tests]: http://img.shields.io/travis/jluccisano/home-automation-server.svg
-                                                                    [tests-url]: https://travis-ci.org/jluccisano/home-automation-server
+[tests-url]: https://travis-ci.org/jluccisano/home-automation-server
