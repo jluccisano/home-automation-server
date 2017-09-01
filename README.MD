@@ -12,3 +12,5 @@ sudo docker run -dit --name home-server \
 sudo docker exec -i -t e6bd4cc550cf /bin/bash
 
 
+travis encrypt DOCKER_USER=username --add
+travis encrypt DOCKER_PASS=password --add

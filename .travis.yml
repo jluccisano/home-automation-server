@@ -4,27 +4,24 @@ services:
 - docker
 branches:
   only:
-    - master
+  - master
 go:
-  - 1.8
+- 1.8
 install:
-  - go get -d -v ./...
+- go get -d -v ./...
 script:
-- export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH; fi`
-- docker build -t $REPO:$TAG .
+- go test -v ./...
 after_success:
 - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
 - docker tag $REPO:$COMMIT $REPO:$TAG
 - docker tag $REPO:$COMMIT $REPO:$TRAVIS_BUILD_NUMBER
 - docker push $REPO
 before_script:
-  - go get github.com/stretchr/testify/assert
-script:
-  - go test -v ./...
+- go get github.com/stretchr/testify/assert
 env:
   global:
-  - secure: TecGmyKwUSpfLG/7vlXQ/3CHsTVtPyKNJy90HCDv61dZxga7TAFLLQ03MWfrr5rrEUxc50P4pPt0mpNgYk7pbpjGYmWNO6fbcj/jhHkC81YTe5WKItwAkIH761M+bDBSh4B6n3wN27gl8S8zcw8Kz7ZYkAxigfCI69jKMvmhOe2hx4T1/wqx7zmNyDofjgg6Gm9jahFNjUYIyHwy4YvbsSAzNLTdYPlCs4Cs1MxIXmwYptJ3hHxH+ysTJ5wXjJ5/qaYJ411JF8CyyuU2BhSTguPuaFj3cFetfIGCqGCRVPI/QqPAfC2UNDaSIAy4IhWswxgaEC4+GmxPx0+pOiFbYnkLsyqQ7/tFRturqWKtXnPigJ9E0FTLyVi5H9dAg4EW9nJWsV6s0wBvYImk8GKw/u2PKVDYHEDejCXBd/PH6Jq5CLnbILbwYfPuAPbddBEV6dPRt988YgLiTxgnz9EylE9qoS5MuPdkBoj3NAG2jccfAi2tS1IumetgaQc30qm/DVJs9OjRjPVZvNGPRAjoDSbWbmJEKanlRa5h/rzNHgg7R+6tR2iRru48gGXkt/5GgNMgfRIih6NP8spWJnvYASCeBIVeCaoEgZIK4oNsZyi/lPlgiGbNuU5xv3IrgQ6XqlA2qNwJLQh5tT8YTLi4OEpJGVojpxNjuELbTtadG1E=
-  - secure: jjjr7o8fPok8AQ9g0ii4ts4isc/QftyO+Sbu/Y/pxb/bnPLZckJav2k4/5oXA4d0iQi52gwvNzWQ0u5s+tC/nX06iumfqnZpCUgrt/rFoBgrV40OhRx5J/3UBXUgBwPU1Kjd/3F6LsNvnF7HdbtrEfxwDTRGBo1pbMoK9O269cuug+pLyR9DzgmvuZESWfxD8i1C9WVdXAYbflCUJ8r59M1y0PAEbq2s4Wb2d3xSq6qtlx83WNYhjUDModtm2crv7VQQCERR/hNULvMou1MI/9mqJg9iU1b8ZA8RqdatPEmavWYp8cYbTvcyoTRevTVZoO1fbERa29iWr/7AHgQbRLd8hA8wQSDf1/NPaTmE91ymwMlktCBrSgEnOVKNhL7lWxTLVXyjrL/HNTt5EKvZ0T3xMdbZNhq3PoNnPd/RmaEdxyG24ruHjxs+JRMqQbKUWmEAHNPsGc7WuTcPJAxjiucaO8G4EnpAsox4f0Q0ib//bAsFjxVkFETmla+N6TAwtkh2PeOacdYDahxe8v7gPAJFJjB7qgwfDcs1IwOhQVqQOSTT7pxmGwRmBvKu36pTcThU0Mm39oMfJrrPLb0+KJ+Y3UKfcOqsc7A7dLIjMaNz//RVtpeVBLBzkRDQ9z+zwhW0PnCD7B1uh0FyTvvmVDITWmS7K6aJgTOidaie6MI=
+  - secure: cEacAe7QCdmG6BKDSugVyyz7Oj7y7Be+VSE3faDkJfB+Y+rw1HCicX30yknORLhiPgbQJ52oqFHtZ5El+QULSguVQ8t08axSVQz7Vo33H7o28bqspe/HD4tg2PooiT+SX1jop8/xi6Y4UhmZIfmA1M21CYVSRxL4k1FqE/WjOcx5GIJmIwcgoe8WI1DX3Fy1y2Lj2uFyRg/63Kley48MfGxuTJW01RQYwHGTvcLagJN5JQcfsvXTOkNtW150v3bML3EgMrrcxq51gkHV1NiKBLI/3sgGR6aYXVRSp1QR3pa+HOlbMRhiFwATiIxqKddGPmJlC9wqj/dEKiojC1QYCWilC20ZiaSFeIrd1Vq/HCrElmxLQnMcEp7kBMhWsx2DoP5RjhaaE7CyYpvXMW+iIXSrHjRk7J5Z2UXsRG9BlGRsQ6poKQ0rDttFlE24PuKaHOWMpq3aGqPssviWgjAFFfRwdj8NlPGW5pxvCfOU9y61hOD9f301CvlvLRocrmhng/uTkV1vejry9pr1FDBYhO3IcsD5Is9Bfqs21xeyLBZnx5DkzPNE5m2mKL+TWtsV055GQ+A9gufltRvMVwZAaDuEfNcpk/7dp9BCP3FxGjjOQ/1c9bnfxrn1MJ076wkGrROnhr2O1rMtg7Sdm7wc/YnTzAoGDwMuGqUWpp1DmQI=
+  - secure: FN0b4pmZKinBHn8R/24nzsMJz63QiWDZ4g2fOBwW+10v/khKJFkmgEYVgm/AW6Zy00i6KRhqZ9BWyhLFbzb6296TxaBrZ895Mmf/NBO7oJsjEJeATVFJD7bMRttt3bo37+a/Api6su32LjtXdiWuhdhpyYAtpYblmsKyBIHkexjrgggyzpHZJC3uMw3MZrhKyirYTsOvHc/QU+Q6raTWFIXrssv+owfWG4mYICrqetYotp++Wc/ObEpyQL3fWfllrqVN3zqATUPJVuj3eIC1871I9Ul1FoswV5qVvpCwBxOOyu+lmQNrTAy6lFHuU8LI1i91CCbijJYZxhBWL61CaqSzxxxsY2fg9WNvFgzxhrP+lcoU39h1qcyxC1auKf3zm4rWppsxADl+BFyHxhu2PmiEgFU4rFr34qp6Kcw/+qtVw2AANJwVvPMgyu40Bwqs6FhSgCqwBu5CSv4k1sFWaTzpomk9nXU9ubbGzmOBkq50mMaTyxG99imv6AVAHJfBEIGW7Hn1u97XNwe3ortj4a9Im/mln0ukCW3tlrj2OWHc7JITWgEK1iIh7pLJ4U0Kjk7yLNoYJ4ilsbx9qjF0eXt4d34ZNY/DAYhJ+GKNPDGfrXqhv/mZM/H1UBmkkXBHAOURo+Lh2B3JH6Xq+A4wQjTiXaKr1le8VQ6Qjvfr7pA=
   - COMMIT=${TRAVIS_COMMIT::8}
   - REPO=$DOCKER_USER/home-automation-server
   - CGO_ENABLED=0
