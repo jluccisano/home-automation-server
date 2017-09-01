@@ -9,6 +9,9 @@ go:
 - 1.8
 install:
 - go get -d -v ./...
+script:
+- export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH; fi`
+- docker build -t $REPO:$TAG .
 after_success:
 - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
 - docker tag $REPO:$COMMIT $REPO:$TAG
