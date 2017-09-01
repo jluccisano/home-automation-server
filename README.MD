@@ -10,3 +10,5 @@ sudo docker run -dit --name home-server \
     -v $PWD/conf/conf-prod.yaml:/go/src/app/conf/conf-prod.yaml \
     home-server
 sudo docker exec -i -t e6bd4cc550cf /bin/bash
+
+

@@ -1,4 +1,7 @@
 language: go
+sudo: required
+services:
+- docker
 branches:
   only:
     - master
@@ -6,7 +9,24 @@ go:
   - 1.8
 install:
   - go get -d -v ./...
+script:
+- export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH; fi`
+- docker build -t $REPO:$TAG .
+after_success:
+- docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+- docker tag $REPO:$COMMIT $REPO:$TAG
+- docker tag $REPO:$COMMIT $REPO:$TRAVIS_BUILD_NUMBER
+- docker push $REPO
 before_script:
   - go get github.com/stretchr/testify/assert
 script:
   - go test -v ./...
+env:
+  global:
+  - secure: TecGmyKwUSpfLG/7vlXQ/3CHsTVtPyKNJy90HCDv61dZxga7TAFLLQ03MWfrr5rrEUxc50P4pPt0mpNgYk7pbpjGYmWNO6fbcj/jhHkC81YTe5WKItwAkIH761M+bDBSh4B6n3wN27gl8S8zcw8Kz7ZYkAxigfCI69jKMvmhOe2hx4T1/wqx7zmNyDofjgg6Gm9jahFNjUYIyHwy4YvbsSAzNLTdYPlCs4Cs1MxIXmwYptJ3hHxH+ysTJ5wXjJ5/qaYJ411JF8CyyuU2BhSTguPuaFj3cFetfIGCqGCRVPI/QqPAfC2UNDaSIAy4IhWswxgaEC4+GmxPx0+pOiFbYnkLsyqQ7/tFRturqWKtXnPigJ9E0FTLyVi5H9dAg4EW9nJWsV6s0wBvYImk8GKw/u2PKVDYHEDejCXBd/PH6Jq5CLnbILbwYfPuAPbddBEV6dPRt988YgLiTxgnz9EylE9qoS5MuPdkBoj3NAG2jccfAi2tS1IumetgaQc30qm/DVJs9OjRjPVZvNGPRAjoDSbWbmJEKanlRa5h/rzNHgg7R+6tR2iRru48gGXkt/5GgNMgfRIih6NP8spWJnvYASCeBIVeCaoEgZIK4oNsZyi/lPlgiGbNuU5xv3IrgQ6XqlA2qNwJLQh5tT8YTLi4OEpJGVojpxNjuELbTtadG1E=
+  - secure: jjjr7o8fPok8AQ9g0ii4ts4isc/QftyO+Sbu/Y/pxb/bnPLZckJav2k4/5oXA4d0iQi52gwvNzWQ0u5s+tC/nX06iumfqnZpCUgrt/rFoBgrV40OhRx5J/3UBXUgBwPU1Kjd/3F6LsNvnF7HdbtrEfxwDTRGBo1pbMoK9O269cuug+pLyR9DzgmvuZESWfxD8i1C9WVdXAYbflCUJ8r59M1y0PAEbq2s4Wb2d3xSq6qtlx83WNYhjUDModtm2crv7VQQCERR/hNULvMou1MI/9mqJg9iU1b8ZA8RqdatPEmavWYp8cYbTvcyoTRevTVZoO1fbERa29iWr/7AHgQbRLd8hA8wQSDf1/NPaTmE91ymwMlktCBrSgEnOVKNhL7lWxTLVXyjrL/HNTt5EKvZ0T3xMdbZNhq3PoNnPd/RmaEdxyG24ruHjxs+JRMqQbKUWmEAHNPsGc7WuTcPJAxjiucaO8G4EnpAsox4f0Q0ib//bAsFjxVkFETmla+N6TAwtkh2PeOacdYDahxe8v7gPAJFJjB7qgwfDcs1IwOhQVqQOSTT7pxmGwRmBvKu36pTcThU0Mm39oMfJrrPLb0+KJ+Y3UKfcOqsc7A7dLIjMaNz//RVtpeVBLBzkRDQ9z+zwhW0PnCD7B1uh0FyTvvmVDITWmS7K6aJgTOidaie6MI=
+  - COMMIT=${TRAVIS_COMMIT::8}
+  - REPO=$DOCKER_USER/home-automation-server
+  - CGO_ENABLED=0
+  - GOOS=linux
+  - GOARCH=arm #target raspberry
