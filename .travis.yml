@@ -10,6 +10,8 @@ go:
 install:
 - go get -d -v ./...
 script:
+# prepare qemu https://blog.hypriot.com/post/setup-simple-ci-pipeline-for-arm-images/
+- docker run --rm --privileged multiarch/qemu-user-static:register --reset
 - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH; fi`
 - docker build -t $REPO:$TAG .
 after_success:
