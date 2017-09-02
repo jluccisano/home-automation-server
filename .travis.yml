@@ -6,10 +6,7 @@ branches:
   only:
   - master
 go:
-- 1.8
-before_script:
-#binfmt-support
-- sudo apt-get --yes --no-install-recommends install binfmt-support qemu-user-static
+- 1.
 script:
 - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH; fi`
 - docker build -t $REPO:$TAG .
@@ -19,6 +16,8 @@ after_success:
 - docker tag $REPO:$COMMIT $REPO:$TRAVIS_BUILD_NUMBER
 - docker push $REPO
 before_script:
+#binfmt-support
+- sudo apt-get --yes --no-install-recommends install binfmt-support qemu-user-static
 - go get github.com/stretchr/testify/assert
 env:
   global:
