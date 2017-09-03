@@ -22,6 +22,9 @@ travis encrypt DOCKER_PASS=password --add
 uname -m
 armv7l
 
+docker run --rm --privileged multiarch/qemu-user-static:register --reset
+
+
 
 [tests]: http://img.shields.io/travis/jluccisano/home-automation-server.svg
 [tests-url]: https://travis-ci.org/jluccisano/home-automation-server
