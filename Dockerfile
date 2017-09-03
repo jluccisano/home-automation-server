@@ -1,6 +1,4 @@
 FROM arm32v7/golang:1.8
-RUN apt-get update \
-    && apt-get install unzip
 WORKDIR /go/src/app
 COPY . .
 RUN go-wrapper download   # "go get -d -v ./..."
