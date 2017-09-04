@@ -1,4 +1,7 @@
 FROM arm32v7/golang:1.8
+env GOOS linux
+env GOARCH arm
+env GOARM 7
 WORKDIR /go/src/app
 COPY . .
 RUN go-wrapper download   # "go get -d -v ./..."
