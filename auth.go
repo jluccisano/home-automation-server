@@ -35,7 +35,7 @@ func loadKeys(subConfig *Config) {
 func registerAuth(r *mux.Router, subConfig *Config) {
 	loadKeys(subConfig)
 
-	r.Handle("/authenticate", addDefaultHeaders(GetTokenHandler)).Methods("POST")
+	r.Handle("/authenticate", GetTokenHandler).Methods("POST")
 }
 
 /* Set up a global string for our secret */
@@ -45,7 +45,7 @@ const (
 )
 
 type User struct{
-	Id      string
+	Username      string
 	Password string
 }
 
@@ -56,7 +56,7 @@ func createToken (user User) (string, error) {
 	/* Set token claims */
 	claims := make(jwt.MapClaims)
 	claims["admin"] = true
-	claims["username"] = user.Id
+	claims["username"] = user.Username
 	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
 
 	/* Sign the token with our secret */
@@ -76,7 +76,7 @@ var GetTokenHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	if user.Id == ValidUser && user.Password == ValidPass {
+	if user.Username == ValidUser && user.Password == ValidPass {
 
 		tokenString, err := createToken(user)
 		/* Finally, write the token to the browser window */
@@ -96,17 +96,6 @@ var GetTokenHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Reque
 	}
 })
 
-func addDefaultHeaders(fn http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if origin := r.Header.Get("Origin"); origin != "" {
-			w.Header().Set("Access-Control-Allow-Origin", origin)
-		}
-		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token")
-		w.Header().Set("Access-Control-Allow-Credentials", "true")
-		fn(w, r)
-	}
-}
 
 func authMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
