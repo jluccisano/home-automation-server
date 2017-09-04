@@ -1,4 +1,4 @@
-FROM arm32v7/golang:1.8
+FROM resin/raspberrypi3-golang:1.8
 WORKDIR /go/src/app
 COPY . .
 RUN go-wrapper download   # "go get -d -v ./..."
