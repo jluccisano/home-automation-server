@@ -1,28 +1,8 @@
 language: go
-sudo: required
-services:
-- docker
 branches:
   only:
   - master
 go:
 - 1.8
-script:
-- docker run --rm --privileged multiarch/qemu-user-static:register --reset
-- export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH; fi`
-- docker build -t $REPO:$TAG .
-after_success:
-- docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
-- docker tag $REPO:$COMMIT $REPO:$TAG
-- docker tag $REPO:$COMMIT $REPO:$TRAVIS_BUILD_NUMBER
-- docker push $REPO
 before_script:
-#binfmt-support
-- sudo apt-get --yes --no-install-recommends install binfmt-support qemu-user-static
 - go get github.com/stretchr/testify/assert
-env:
-  global:
-  - secure: cEacAe7QCdmG6BKDSugVyyz7Oj7y7Be+VSE3faDkJfB+Y+rw1HCicX30yknORLhiPgbQJ52oqFHtZ5El+QULSguVQ8t08axSVQz7Vo33H7o28bqspe/HD4tg2PooiT+SX1jop8/xi6Y4UhmZIfmA1M21CYVSRxL4k1FqE/WjOcx5GIJmIwcgoe8WI1DX3Fy1y2Lj2uFyRg/63Kley48MfGxuTJW01RQYwHGTvcLagJN5JQcfsvXTOkNtW150v3bML3EgMrrcxq51gkHV1NiKBLI/3sgGR6aYXVRSp1QR3pa+HOlbMRhiFwATiIxqKddGPmJlC9wqj/dEKiojC1QYCWilC20ZiaSFeIrd1Vq/HCrElmxLQnMcEp7kBMhWsx2DoP5RjhaaE7CyYpvXMW+iIXSrHjRk7J5Z2UXsRG9BlGRsQ6poKQ0rDttFlE24PuKaHOWMpq3aGqPssviWgjAFFfRwdj8NlPGW5pxvCfOU9y61hOD9f301CvlvLRocrmhng/uTkV1vejry9pr1FDBYhO3IcsD5Is9Bfqs21xeyLBZnx5DkzPNE5m2mKL+TWtsV055GQ+A9gufltRvMVwZAaDuEfNcpk/7dp9BCP3FxGjjOQ/1c9bnfxrn1MJ076wkGrROnhr2O1rMtg7Sdm7wc/YnTzAoGDwMuGqUWpp1DmQI=
-  - secure: FN0b4pmZKinBHn8R/24nzsMJz63QiWDZ4g2fOBwW+10v/khKJFkmgEYVgm/AW6Zy00i6KRhqZ9BWyhLFbzb6296TxaBrZ895Mmf/NBO7oJsjEJeATVFJD7bMRttt3bo37+a/Api6su32LjtXdiWuhdhpyYAtpYblmsKyBIHkexjrgggyzpHZJC3uMw3MZrhKyirYTsOvHc/QU+Q6raTWFIXrssv+owfWG4mYICrqetYotp++Wc/ObEpyQL3fWfllrqVN3zqATUPJVuj3eIC1871I9Ul1FoswV5qVvpCwBxOOyu+lmQNrTAy6lFHuU8LI1i91CCbijJYZxhBWL61CaqSzxxxsY2fg9WNvFgzxhrP+lcoU39h1qcyxC1auKf3zm4rWppsxADl+BFyHxhu2PmiEgFU4rFr34qp6Kcw/+qtVw2AANJwVvPMgyu40Bwqs6FhSgCqwBu5CSv4k1sFWaTzpomk9nXU9ubbGzmOBkq50mMaTyxG99imv6AVAHJfBEIGW7Hn1u97XNwe3ortj4a9Im/mln0ukCW3tlrj2OWHc7JITWgEK1iIh7pLJ4U0Kjk7yLNoYJ4ilsbx9qjF0eXt4d34ZNY/DAYhJ+GKNPDGfrXqhv/mZM/H1UBmkkXBHAOURo+Lh2B3JH6Xq+A4wQjTiXaKr1le8VQ6Qjvfr7pA=
-  - COMMIT=${TRAVIS_COMMIT::8}
-  - REPO=$DOCKER_USER/home-automation-server
