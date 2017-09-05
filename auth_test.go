@@ -43,9 +43,9 @@ func TestUnauthorizedIfNoToken(t *testing.T) {
 
 func TestAuthenticate(t *testing.T) {
 	assert := assert.New(t)
-	token, err := createToken(User{Id:"foo",Password:"bar"})
+	token, err := createToken(User{Username:"foo",Password:"bar"})
 
-	var jsonStr = []byte(`{"id":"foo","password":"bar"}`)
+	var jsonStr = []byte(`{"username":"foo","password":"bar"}`)
 	req, err := http.NewRequest("POST", fmt.Sprintf("http://localhost:%v/authenticate", "8515"), bytes.NewBuffer(jsonStr))
 	req.Header.Set("Content-Type", "application/json")
 	fatal(err)
@@ -59,7 +59,7 @@ func TestAuthenticate(t *testing.T) {
 
 func TestAuthorizedIfToken(t *testing.T) {
 	assert := assert.New(t)
-	token, err := createToken(User{Id:"foo",Password:"bar"})
+	token, err := createToken(User{Username:"foo",Password:"bar"})
 	req, err := http.NewRequest("GET","http://localhost:8515/fakeUrl", nil)
 	fatal(err)
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", token))
