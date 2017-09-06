@@ -33,6 +33,17 @@ func registerAlarmControl(r *mux.Router, c *Config) {
 		w.Write([]byte("OK"))
 	})
 
+	var GetStatusHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		//TODO
+		err := client.Disable()
+		if err != nil {
+			log.Fatalf("Enable failed: %v", err)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte("OK"))
+	})
+
 	r.Handle("/alarm/enable", EnableHandler).Methods("GET")
 	r.Handle("/alarm/disable", DisableHandler).Methods("GET")
+	r.Handle("/alarm/status", GetStatusHandler).Methods("GET")
 }
