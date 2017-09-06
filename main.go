@@ -5,11 +5,16 @@ import (
 	"net/http"
 	"github.com/gorilla/handlers"
 	"os"
+	"github.com/rs/cors"
 )
 
 func main() {
 	var config Config
 	subConfig := config.GetConf("prod")
+
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"},
+	})
 
 	r := mux.NewRouter()
 
@@ -17,6 +22,6 @@ func main() {
 	registerAlarmControl(r, subConfig)
 	registerSprinklerControl(r)
 
-	http.ListenAndServe(":8514", handlers.LoggingHandler(os.Stdout, r))
+	http.ListenAndServe(":8514", c.Handler(handlers.LoggingHandler(os.Stdout, r)))
 
 }
