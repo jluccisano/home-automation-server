@@ -43,7 +43,7 @@ func registerAlarmControl(r *mux.Router, c *Config) {
 		w.Write([]byte("OK"))
 	})
 
-	r.Handle("/alarm/enable", EnableHandler).Methods("GET")
-	r.Handle("/alarm/disable", DisableHandler).Methods("GET")
-	r.Handle("/alarm/status", GetStatusHandler).Methods("GET")
+	r.Handle("/alarm/enable", authMiddleware(EnableHandler)).Methods("GET")
+	r.Handle("/alarm/disable", authMiddleware(DisableHandler)).Methods("GET")
+	r.Handle("/alarm/status", authMiddleware(GetStatusHandler)).Methods("GET")
 }

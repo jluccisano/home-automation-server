@@ -64,7 +64,7 @@ func registerSprinklerControl(router *mux.Router) {
 		w.Write([]byte("OK"))
 	})
 
-	router.Handle("/sprinkler/zones", ZonesHandler).Methods("GET")
-	router.Handle("/sprinkler/zones/{id}", ZoneHandler).Methods("GET")
-	router.Handle("/sprinkler/zones/{id}", SetZoneHandler).Methods("POST")
+	router.Handle("/sprinkler/zones", authMiddleware(ZonesHandler)).Methods("GET")
+	router.Handle("/sprinkler/zones/{id}", authMiddleware(ZoneHandler)).Methods("GET")
+	router.Handle("/sprinkler/zones/{id}", authMiddleware(SetZoneHandler)).Methods("POST")
 }
