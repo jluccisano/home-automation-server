@@ -3,6 +3,7 @@ package main
 import (
 	"testing"
 	"net/http"
+	"net/http/httptest"
 	"log"
 	"fmt"
 	"bytes"
@@ -68,5 +69,42 @@ func TestAuthorizedIfToken(t *testing.T) {
 	assert.Equal(res.StatusCode, http.StatusOK, "status should be equal")
 	body, _ := ioutil.ReadAll(res.Body)
 	assert.Equal(string(body), "OK", "status should be equal")
+}
 
+func TestAuthMiddlewareWithNoHeader(t *testing.T) {
+	assert := assert.New(t)
+	req, err := http.NewRequest("GET", "/fakeUrl", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		println(r)
+		assert.Equal(w.Header().Get("Unauthorized"), "401", "Unauthorized");
+	})
+	rr := httptest.NewRecorder()
+	handler := authMiddleware(testHandler)
+	handler.ServeHTTP(rr, req)
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("Status code differs. Expected %d.\n Got %d", http.StatusOK, status)
+	}
+}
+
+func TestAuthMiddlewareWithValidHeader(t *testing.T) {
+	assert := assert.New(t)
+	token, err := createToken(User{Username:"foo",Password:"bar"})
+	req, err := http.NewRequest("GET", "/fakeUrl", nil)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", token))
+	if err != nil {
+		t.Fatal(err)
+	}
+	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		println(r)
+		assert.Equal(w.Header().Get("Unauthorized"), "401", "Unauthorized");
+	})
+	rr := httptest.NewRecorder()
+	handler := authMiddleware(testHandler)
+	handler.ServeHTTP(rr, req)
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("Status code differs. Expected %d.\n Got %d", http.StatusOK, status)
+	}
 }

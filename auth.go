@@ -101,34 +101,27 @@ func authMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		reqToken := r.Header.Get("Authorization")
-		splitToken := strings.Split(reqToken, "Bearer")
-		reqToken = splitToken[1]
-
-		token, err := jwt.Parse(reqToken, func(token *jwt.Token) (interface{}, error) {
-			// Don't forget to validate the alg is what you expect:
-			return verifyKey, nil
-		})
-
-		if err == nil && token.Valid {
-			next.ServeHTTP(w, r)
-		} else {
-			fmt.Println(err)
-			fmt.Println("Token is not valid:")
+		if(reqToken == "") {
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte("Unauthorized"))
+		} else {
+			splitToken := strings.Split(reqToken, "Bearer")
+			reqToken = splitToken[1]
+
+			token, err := jwt.Parse(reqToken, func(token *jwt.Token) (interface{}, error) {
+				// Don't forget to validate the alg is what you expect:
+				return verifyKey, nil
+			})
+
+			if err == nil && token.Valid {
+				next.ServeHTTP(w, r)
+			} else {
+				fmt.Println(err)
+				fmt.Println("Token is not valid:")
+				w.WriteHeader(http.StatusUnauthorized)
+				w.Write([]byte("Unauthorized"))
+			}
 		}
 	})
-}
-
-func addDefaultHeaders(fn http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if origin := r.Header.Get("Origin"); origin != "" {
-			w.Header().Set("Access-Control-Allow-Origin", origin)
-		}
-		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token")
-		w.Header().Set("Access-Control-Allow-Credentials", "true")
-		fn(w, r)
-	}
 }
 
