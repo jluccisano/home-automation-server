@@ -28,6 +28,5 @@ docker run --rm --privileged multiarch/qemu-user-static:register --reset
 curl -H "Content-Type: application/json" -X POST -d '{"id":"foo","password":"bar"}' http://localhost:8514/authenticate
 
 
-
 [tests]: http://img.shields.io/travis/jluccisano/home-automation-server.svg
 [tests-url]: https://travis-ci.org/jluccisano/home-automation-server

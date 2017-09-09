@@ -7,9 +7,9 @@ import (
 	"time"
 	"github.com/gorilla/mux"
 	"encoding/json"
-	"strings"
 	"io/ioutil"
 	"crypto/rsa"
+	"github.com/dgrijalva/jwt-go/request"
 )
 
 var (
@@ -38,7 +38,6 @@ func registerAuth(r *mux.Router, subConfig *Config) {
 	r.Handle("/authenticate", GetTokenHandler).Methods("POST")
 }
 
-/* Set up a global string for our secret */
 const (
 	ValidUser = "foo"
 	ValidPass = "bar"
@@ -50,16 +49,11 @@ type User struct{
 }
 
 func createToken (user User) (string, error) {
-	/* Create the token */
 	token := jwt.New(jwt.GetSigningMethod("RS256"))
-
-	/* Set token claims */
 	claims := make(jwt.MapClaims)
 	claims["admin"] = true
 	claims["username"] = user.Username
 	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
-
-	/* Sign the token with our secret */
 	return token.SignedString(signKey)
 }
 
@@ -75,17 +69,13 @@ var GetTokenHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Reque
 		http.Error(w, err.Error(), 400)
 		return
 	}
-
 	if user.Username == ValidUser && user.Password == ValidPass {
-
 		tokenString, err := createToken(user)
-		/* Finally, write the token to the browser window */
 		if err != nil {
 			fmt.Println("User or Password is not valid:", tokenString)
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte("Unauthorized"))
 		} else {
-
 			w.Write([]byte(tokenString))
 		}
 	}  else {
@@ -99,28 +89,16 @@ var GetTokenHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Reque
 
 func authMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
-		reqToken := r.Header.Get("Authorization")
-		if(reqToken == "") {
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte("Unauthorized"))
-		} else {
-			splitToken := strings.Split(reqToken, "Bearer")
-			reqToken = splitToken[1]
-
-			token, err := jwt.Parse(reqToken, func(token *jwt.Token) (interface{}, error) {
-				// Don't forget to validate the alg is what you expect:
+		reqToken, err := request.ParseFromRequest(r, request.AuthorizationHeaderExtractor,
+			func(token *jwt.Token) (interface{}, error) {
 				return verifyKey, nil
 			})
-
-			if err == nil && token.Valid {
-				next.ServeHTTP(w, r)
-			} else {
-				fmt.Println(err)
-				fmt.Println("Token is not valid:")
-				w.WriteHeader(http.StatusUnauthorized)
-				w.Write([]byte("Unauthorized"))
-			}
+		if err == nil && reqToken.Valid {
+			next.ServeHTTP(w, r)
+		} else {
+			fmt.Println(err)
+			fmt.Fprint(w, "Unauthorized access, token is not valid")
+			w.WriteHeader(http.StatusUnauthorized)
 		}
 	})
 }

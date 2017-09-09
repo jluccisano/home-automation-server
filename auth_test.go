@@ -78,15 +78,29 @@ func TestAuthMiddlewareWithNoHeader(t *testing.T) {
 		t.Fatal(err)
 	}
 	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		println(r)
-		assert.Equal(w.Header().Get("Unauthorized"), "401", "Unauthorized");
+		assert.Equal(r.Header.Get("Authorization"), "", "Should not contain Authorization header");
 	})
 	rr := httptest.NewRecorder()
 	handler := authMiddleware(testHandler)
 	handler.ServeHTTP(rr, req)
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("Status code differs. Expected %d.\n Got %d", http.StatusOK, status)
+	assert.Equal(rr.Code, http.StatusUnauthorized, "status should be equal")
+}
+
+func TestAuthMiddlewareWithInvalidHeader(t *testing.T) {
+	assert := assert.New(t)
+	token := "REj2jA8XZhvp5e6Hk7gKpTl/KYXJgS6Ezm3CZTOHCUyQdlcNqDAeRTGV/diUgNTum9rT05N264eXBEtelRcYiLTZaGp4kM0L9BleLbTvkhuXD9lgw7n/YFsFOBtLKfo0Zlylt3AUQQE6RzoOqyd4KoPntAkfSJjGRrXw2li/x8E="
+	req, err := http.NewRequest("GET", "/fakeUrl", nil)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", token))
+	if err != nil {
+		t.Fatal(err)
 	}
+	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(r.Header.Get("Authorization"), "Bearer " + token, "Should contain Authorization header");
+	})
+	rr := httptest.NewRecorder()
+	handler := authMiddleware(testHandler)
+	handler.ServeHTTP(rr, req)
+	assert.Equal(rr.Code, http.StatusUnauthorized, "status should be equal")
 }
 
 func TestAuthMiddlewareWithValidHeader(t *testing.T) {
@@ -98,13 +112,10 @@ func TestAuthMiddlewareWithValidHeader(t *testing.T) {
 		t.Fatal(err)
 	}
 	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		println(r)
-		assert.Equal(w.Header().Get("Unauthorized"), "401", "Unauthorized");
+		assert.Equal(r.Header.Get("Authorization"), "Bearer " + token, "Should contain Authorization header");
 	})
 	rr := httptest.NewRecorder()
 	handler := authMiddleware(testHandler)
 	handler.ServeHTTP(rr, req)
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("Status code differs. Expected %d.\n Got %d", http.StatusOK, status)
-	}
+	assert.Equal(rr.Code, http.StatusOK, "status should be equal")
 }
