@@ -74,15 +74,14 @@ var GetTokenHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Reque
 		if err != nil {
 			fmt.Println("User or Password is not valid:", tokenString)
 			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte("Unauthorized"))
+			w.Write([]byte(http.StatusText(http.StatusUnauthorized)))
 		} else {
 			w.Write([]byte(tokenString))
 		}
 	}  else {
 		fmt.Println(err)
 		fmt.Println("User or Password is not valid:")
-		w.WriteHeader(http.StatusUnauthorized)
-		w.Write([]byte("Unauthorized"))
+		w.Write([]byte(http.StatusText(http.StatusUnauthorized)))
 	}
 })
 
@@ -96,9 +95,12 @@ func authMiddleware(next http.Handler) http.Handler {
 		if err == nil && reqToken.Valid {
 			next.ServeHTTP(w, r)
 		} else {
-			fmt.Println(err)
-			fmt.Fprint(w, "Unauthorized access, token is not valid")
+			fmt.Fprintf(w,
+				`{"error" : "Invalid token", "code" : %d }`,
+				http.StatusUnauthorized)
 			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte(http.StatusText(http.StatusUnauthorized)))
+			return
 		}
 	})
 }
