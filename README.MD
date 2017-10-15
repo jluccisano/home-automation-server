@@ -39,7 +39,13 @@ mv $PWD/conf/conf.yml.tpl $PWD/conf/conf-prod.yml
 
 Adapt conf:
 
-
+```yml
+url: your_syno_root_url
+user: your_user_acount
+passwd: your_pass
+publicKey: $PWD/resources/rs256-4096-public.pem
+privateKey: $PWD/resources/rs256-4096-private.rsa
+```
 
 ```bash
 sudo docker run -dit --name home-automation-server \
