@@ -17,10 +17,35 @@ sudo docker build -t jluccisano/home-automation-server .
 
 #### Run
 
+Generate private and public key:
+
+```bash
+mkdir -p $PWD/resources
+```
+
+Private key:
+```bash
+openssl genrsa -out $PWD/resources/rs256-4096-private.rsa 4096
+```
+
+Public key:
+```bash
+openssl rsa -in $PWD/resources/rs256-4096-private.rsa -pubout -outform PEM -out $PWD/resources/rs256-4096-public.pem
+```
+
+```bash
+mv $PWD/conf/conf.yml.tpl $PWD/conf/conf-prod.yml
+```
+
+Adapt conf:
+
+
+
 ```bash
 sudo docker run -dit --name home-automation-server \
     -p 8514:8514 \
     -v $PWD/conf/conf-prod.yaml:/go/src/app/conf/conf-prod.yaml \
+    -v $PWD/resources/:/go/src/app/resources \
     jluccisano/home-automation-server
 ```
 
