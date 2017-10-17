@@ -12,7 +12,7 @@ go build .
 #### Build
 
 ```bash
-sudo docker build -t jluccisano/home-automation-server .
+docker build -t jluccisano/home-automation-server .
 ```
 
 #### Run
@@ -48,7 +48,7 @@ privateKey: resources/rs256-4096-private.rsa
 ```
 
 ```bash
-sudo docker run -dit --name home-automation-server \
+docker run -dit --name home-automation-server \
     -p 8514:8514 \
     -v $PWD/conf/conf-prod.yaml:/go/src/app/conf/conf-prod.yaml \
     -v $PWD/resources/:/go/src/app/resources \
