@@ -43,8 +43,8 @@ Adapt conf:
 url: your_syno_root_url
 user: your_user_acount
 passwd: your_pass
-publicKey: $PWD/resources/rs256-4096-public.pem
-privateKey: $PWD/resources/rs256-4096-private.rsa
+publicKey: resources/rs256-4096-public.pem
+privateKey: resources/rs256-4096-private.rsa
 ```
 
 ```bash
