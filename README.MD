@@ -59,7 +59,7 @@ sudo docker run -dit --name home-automation-server \
 
 ```bash
 curl -H "Content-Type: application/json" \
-     -X POST -d '{"id":"foo","password":"bar"}' \
+     -X POST -d '{"username":"foo","password":"bar"}' \
      http://localhost:8514/authenticate
 ```
 
